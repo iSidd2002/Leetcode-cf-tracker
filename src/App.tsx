@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme, ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { getReviewIntervals } from './utils/settingsStorage';
 import { Settings } from './components/Settings';
 import type { ActiveDailyCodingChallengeQuestion } from './types';
 import { toast } from 'sonner';
@@ -77,7 +76,7 @@ function App() {
     }
   }, [problems, potdProblems, contests]);
 
-  const handleSettingsSave = (newIntervals: number[]) => {
+  const handleSettingsSave = () => {
     // This function is no longer needed as reviewIntervals state is removed
   };
 

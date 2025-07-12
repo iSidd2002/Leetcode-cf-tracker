@@ -53,7 +53,6 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
         options,
         onValueChange,
         value,
-        className,
         placeholder = "Select options",
     }, ref) => {
     const [open, setOpen] = React.useState(false)
