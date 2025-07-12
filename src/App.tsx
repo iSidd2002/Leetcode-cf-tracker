@@ -5,12 +5,12 @@ import Dashboard from './components/Dashboard';
 import ProblemForm from './components/ProblemForm';
 import ProblemList from './components/ProblemList';
 import Analytics from './components/Analytics';
-import { Home, Plus, List, BarChart3, Moon, Sun, Star, Settings as SettingsIcon, Archive as LearnedIcon, CalendarCheck, History, Trophy } from 'lucide-react';
+import { Home, Plus, List, BarChart3, Moon, Sun, Star, Settings as SettingsIcon, Archive as LearnedIcon, History, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme, ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { getReviewIntervals, saveReviewIntervals } from './utils/settingsStorage';
+import { getReviewIntervals } from './utils/settingsStorage';
 import { Settings } from './components/Settings';
 import type { ActiveDailyCodingChallengeQuestion } from './types';
 import { toast } from 'sonner';
@@ -25,7 +25,6 @@ function App() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [reviewIntervals, setReviewIntervals] = useState<number[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [problemToEdit, setProblemToEdit] = useState<Problem | null>(null);
   const [activePlatform, setActivePlatform] = useState('leetcode');
@@ -35,7 +34,6 @@ function App() {
     setProblems(StorageService.getProblems());
     setPotdProblems(StorageService.getPotdProblems());
     setContests(StorageService.getContests());
-    setReviewIntervals(getReviewIntervals());
     setIsLoaded(true);
   }, []);
 
@@ -80,7 +78,7 @@ function App() {
   }, [problems, potdProblems, contests]);
 
   const handleSettingsSave = (newIntervals: number[]) => {
-    setReviewIntervals(newIntervals);
+    // This function is no longer needed as reviewIntervals state is removed
   };
 
   const handleAddContest = (contest: Omit<Contest, 'id'>) => {

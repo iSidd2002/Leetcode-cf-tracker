@@ -6,7 +6,7 @@ import { BookCopy, CalendarDays, Star, Trophy, Clock } from 'lucide-react';
 import { isToday, isPast } from 'date-fns';
 import ProblemOfTheDay from './ProblemOfTheDay';
 import type { ActiveDailyCodingChallengeQuestion } from '../types';
-import { format, isSameDay, subDays, eachDayOfInterval, differenceInDays, startOfWeek, endOfWeek, eachWeekOfInterval, getDay, isBefore, subMonths, addDays } from 'date-fns';
+import { format, isSameDay, subDays, eachDayOfInterval, differenceInDays, eachWeekOfInterval } from 'date-fns';
 
 
 interface DashboardProps {

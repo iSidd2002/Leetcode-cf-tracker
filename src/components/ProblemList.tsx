@@ -29,11 +29,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { isToday, isPast, startOfDay } from 'date-fns';
+import { startOfDay } from 'date-fns';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { cn } from '@/lib/utils';
 
 interface ProblemListProps {
   problems: Problem[];

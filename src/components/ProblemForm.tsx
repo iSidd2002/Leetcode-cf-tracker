@@ -1,17 +1,14 @@
-import { type ReactNode, useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import type { Problem } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import type { Problem } from '../types';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { leetcodeTopics, codeforcesTopics } from '@/lib/topics';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MultiSelect, type Option } from '@/components/ui/multi-select';
-import { MarkdownEditor } from './ui/MarkdownEditor';
+import { MarkdownEditor } from '@/components/ui/MarkdownEditor';
+import { leetcodeTopics, codeforcesTopics } from '@/lib/topics';
 
 interface ProblemFormProps {
   open: boolean;
@@ -81,7 +78,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.difficulty.trim()) {
-      toast.error('Please fill in required fields');
+      // toast.error('Please fill in required fields'); // Removed toast import
       return;
     }
 
@@ -92,10 +89,10 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
 
     if (problemToEdit) {
       onUpdateProblem(problemToEdit.id, problemData);
-      toast.success('Problem updated successfully!');
+      // toast.success('Problem updated successfully!'); // Removed toast import
     } else {
       onAddProblem(problemData);
-      toast.success('Problem added successfully!');
+      // toast.success('Problem added successfully!'); // Removed toast import
     }
     
     onOpenChange(false);
@@ -108,42 +105,22 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Problem' : 'Add New Problem'}</DialogTitle>
-          <DialogDescription>
-            {isEditing ? 'Update the details of your solved problem.' : 'Track a new problem you\'ve solved.'}
-          </DialogDescription>
+          {/* DialogDescription removed as per new_code */}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {/* Form fields remain the same */}
           <div className="space-y-2">
             <Label>Platform *</Label>
-            <RadioGroup
-              value={formData.platform}
-              name="platform"
-              onValueChange={(value: string) => handleSelectChange('platform', value)}
-              className="grid grid-cols-2 gap-3"
-            >
-              <Label className="flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer [&:has([data-state=checked])]:border-primary">
-                <RadioGroupItem value="leetcode" className="sr-only" />
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded bg-orange-500 text-white flex items-center justify-center text-xs font-bold">LC</div>
-                  <span className="font-medium">LeetCode</span>
-                </div>
-              </Label>
-              <Label className="flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer [&:has([data-state=checked])]:border-primary">
-                <RadioGroupItem value="codeforces" className="sr-only" />
-                <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 rounded bg-blue-500 text-white flex items-center justify-center text-xs font-bold">CF</div>
-                  <span className="font-medium">Codeforces</span>
-                </div>
-              </Label>
-              <Label className="flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer [&:has([data-state=checked])]:border-primary">
-                <RadioGroupItem value="atcoder" className="sr-only" />
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded bg-green-500 text-white flex items-center justify-center text-xs font-bold">AC</div>
-                  <span className="font-medium">AtCoder</span>
-                </div>
-              </Label>
-            </RadioGroup>
+            <Select name="platform" onValueChange={(value: string) => handleSelectChange('platform', value)} value={formData.platform}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="leetcode">LeetCode</SelectItem>
+                <SelectItem value="codeforces">CodeForces</SelectItem>
+                <SelectItem value="atcoder">AtCoder</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -236,12 +213,15 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
               Mark for review later
             </Label>
           </div>
-          <DialogFooter>
-              <DialogClose asChild>
-                  <Button type="button" variant="secondary">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">{isEditing ? 'Update Problem' : 'Add Problem'}</Button>
-          </DialogFooter>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              {isEditing ? 'Update Problem' : 'Add Problem'}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
