@@ -6,6 +6,7 @@ import type {
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { ExternalLink } from "lucide-react";
 
 const LEETCODE_API_ENDPOINT = '/api/potd';
 const DAILY_PROBLEM_QUERY = `
@@ -45,6 +46,7 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
     useState<ActiveDailyCodingChallengeQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProduction, setIsProduction] = useState(false);
 
   useEffect(() => {
     const fetchDailyProblem = async () => {
@@ -58,7 +60,14 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch daily problem");
+          // Check if this is a 404 error (production environment)
+          if (response.status === 404) {
+            setIsProduction(true);
+            setError("API not available in production");
+          } else {
+            throw new Error("Failed to fetch daily problem");
+          }
+          return;
         }
 
         const result: LeetCodeDailyProblemResponse = await response.json();
@@ -69,7 +78,13 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
         }
       } catch (err) {
         if (err instanceof Error) {
-          setError(err.message);
+          // Check if it's a network error (likely production)
+          if (err.message.includes('fetch') || err.name === 'TypeError') {
+            setIsProduction(true);
+            setError("API not available in production");
+          } else {
+            setError(err.message);
+          }
         } else {
           setError("An unknown error occurred");
         }
@@ -88,20 +103,51 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
           <CardTitle>Loading Problem of the Day...</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-24 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
         </CardContent>
       </Card>
     );
   }
 
-  if (error) {
+  // Production fallback UI
+  if (isProduction || error) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Error</CardTitle>
+          <CardTitle>LeetCode's Problem of the Day</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-red-500">{error}</p>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <p className="text-muted-foreground mb-4">
+                Visit LeetCode to see today's problem and add it manually to your tracker.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild>
+                  <a
+                    href="https://leetcode.com/problemset/all/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    View Today's Problem
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a
+                    href="https://leetcode.com/problemset/all/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Browse All Problems
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
