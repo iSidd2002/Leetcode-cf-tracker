@@ -9,53 +9,43 @@ interface CodeforcesContest {
   phase: string;
   frozen: boolean;
   durationSeconds: number;
-  startTimeSeconds?: number;
-  relativeTimeSeconds?: number;
+  startTimeSeconds: number;
+  relativeTimeSeconds: number;
 }
 
 const fetchCodeforcesContests = async (): Promise<Contest[]> => {
-    try {
-        const response = await fetch(`${CODEFORCES_API_URL}`);
-        const data = await response.json();
-        if (data.status === 'OK') {
-            return data.result
-                .filter((c: CodeforcesContest) => c.phase === 'BEFORE' && c.startTimeSeconds)
-                .map((c: CodeforcesContest) => ({
-                    id: c.id.toString(),
-                    title: c.name,
-                    platform: 'codeforces' as const,
-                    startTime: new Date((c.startTimeSeconds || 0) * 1000).toISOString(),
-                    duration: c.durationSeconds / 60, // Convert to minutes
-                    url: `https://codeforces.com/contest/${c.id}`,
-                    isRegistered: false,
-                }));
-        }
-        return [];
-    } catch (error) {
-        console.error('Error fetching CodeForces contests:', error);
-        return [];
-    }
-};
-
-export async function fetchAtCoderContests(): Promise<Contest[]> {
   try {
-    const response = await fetch('https://contest-hive.vercel.app/api/atcoder');
+    const response = await fetch(CODEFORCES_API_URL);
     if (!response.ok) {
-      throw new Error('Failed to fetch AtCoder contests');
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const { data } = await response.json();
-    return data.map((contest: any) => ({
-      id: contest.url.split('/').pop() || contest.title, // Extract ID from URL
-      name: contest.title,
-      startTime: Date.parse(contest.startTime) / 1000, // Convert ISO to Unix timestamp (seconds)
-      duration: contest.duration, // Already in seconds
-      url: contest.url,
-    }));
+    const data = await response.json();
+    
+    if (data.status !== 'OK') {
+      throw new Error(`API error: ${data.comment}`);
+    }
+
+    const contests: Contest[] = data.result
+      .filter((contest: CodeforcesContest) => contest.phase === 'BEFORE')
+      .map((contest: CodeforcesContest) => ({
+        id: contest.id.toString(),
+        name: contest.name,
+        platform: 'codeforces' as const,
+        startTime: new Date(contest.startTimeSeconds * 1000).toISOString(),
+        duration: contest.durationSeconds,
+        url: `https://codeforces.com/contest/${contest.id}`,
+        status: 'scheduled' as const,
+        type: contest.type.toLowerCase() as any,
+      }));
+
+    return contests;
   } catch (error) {
-    console.error('Error fetching AtCoder contests:', error);
+    console.error('Error fetching Codeforces contests:', error);
     return [];
   }
-}
+};
+
+
 
 export const fetchContests = async (): Promise<Contest[]> => {
     const codeforcesContests = await fetchCodeforcesContests();
