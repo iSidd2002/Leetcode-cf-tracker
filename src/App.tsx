@@ -5,7 +5,7 @@ import Dashboard from './components/Dashboard';
 import ProblemForm from './components/ProblemForm';
 import ProblemList from './components/ProblemList';
 import Analytics from './components/Analytics';
-import { Home, Plus, List, BarChart3, Moon, Sun, Star, Archive as LearnedIcon, History, Trophy, Building2 } from 'lucide-react';
+import { Home, Plus, List, BarChart3, Moon, Sun, Star, Archive as LearnedIcon, History, Trophy, Building2, BookCopy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme, ThemeProvider } from '@/components/theme-provider';
@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import type { Contest } from './types';
 import ContestTracker from './components/ContestTracker';
 import { Badge } from '@/components/ui/badge';
-import CompanyView from './components/CompanyView';
+import SheetView from './components/SheetView';
 
 
 function App() {
@@ -368,6 +368,10 @@ function App() {
                   <Home className="h-5 w-5 sm:mr-2" />
                   <span className="hidden sm:inline">Dashboard</span>
                 </TabsTrigger>
+                <TabsTrigger value="sheets">
+                  <BookCopy className="h-5 w-5 sm:mr-2" />
+                  <span className="hidden sm:inline">Sheets</span>
+                </TabsTrigger>
                 <TabsTrigger value="companies">
                   <Building2 className="h-5 w-5 sm:mr-2" />
                   <span className="hidden sm:inline">Companies</span>
@@ -412,14 +416,8 @@ function App() {
                 onImportProblems={handleImportProblems}
               />
             </TabsContent>
-            <TabsContent value="companies">
-              <CompanyView 
-                problems={problems} 
-                onUpdateProblem={handleUpdateProblem}
-                onDeleteProblem={handleDeleteProblem}
-                onEditProblem={handleOpenForm}
-                onProblemReviewed={handleProblemReviewed}
-              />
+            <TabsContent value="sheets">
+              <SheetView />
             </TabsContent>
             <TabsContent value="settings">
               <Settings onSave={handleSettingsSave} onClearAllData={handleClearAllData} />
