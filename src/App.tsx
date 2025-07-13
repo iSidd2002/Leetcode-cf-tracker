@@ -31,13 +31,7 @@ function App() {
 
 
   useEffect(() => {
-    // Clear existing problems on load as requested for the restructuring.
-    if (StorageService.getProblems().length > 0) {
-      StorageService.saveProblems([]);
-      toast.info("All problems have been cleared to set up the new company view.");
-    }
-    setProblems([]);
-
+    setProblems(StorageService.getProblems());
     setPotdProblems(StorageService.getPotdProblems());
     setContests(StorageService.getContests());
     setIsLoaded(true);
