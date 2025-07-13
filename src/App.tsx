@@ -35,6 +35,11 @@ function App() {
     setPotdProblems(StorageService.getPotdProblems());
     setContests(StorageService.getContests());
     setIsLoaded(true);
+    // Expose clear function to window for manual cleanup
+    (window as any).clearAllTrackerData = () => {
+      StorageService.clearAllData();
+      console.log('All tracker data has been cleared. Please refresh the page.');
+    };
   }, []);
 
   useEffect(() => {
@@ -79,6 +84,16 @@ function App() {
 
   const handleSettingsSave = () => {
     // This function is no longer needed as reviewIntervals state is removed
+  };
+
+  const handleClearAllData = () => {
+    if (window.confirm('Are you sure you want to delete all your data? This action cannot be undone.')) {
+      StorageService.clearAllData();
+      setProblems([]);
+      setPotdProblems([]);
+      setContests([]);
+      toast.success('All data has been cleared.');
+    }
   };
 
   const handleAddContest = (contest: Omit<Contest, 'id'>) => {
@@ -293,44 +308,16 @@ function App() {
     p => p.nextReviewDate && new Date(p.nextReviewDate) <= new Date()
   ).length;
   
-  const renderProblemList = (problemsToRender: Problem[], isPotdList: boolean = false, isReviewList: boolean = false) => (
-    <Tabs value={activePlatform} onValueChange={setActivePlatform} className="w-full mt-4">
-      <TabsList className="grid w-full grid-cols-3 bg-muted p-1 rounded-md h-10">
-        <TabsTrigger value="leetcode" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm">LeetCode</TabsTrigger>
-        <TabsTrigger value="codeforces" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm">Codeforces</TabsTrigger>
-        <TabsTrigger value="atcoder" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm">AtCoder</TabsTrigger>
-      </TabsList>
-      <TabsContent value="leetcode">
-        <ProblemList
-          problems={problemsToRender.filter(p => p.platform === 'leetcode')}
-          onUpdateProblem={isPotdList ? handleUpdatePotdProblem : handleUpdateProblem}
-          onDeleteProblem={isPotdList ? handleDeletePotdProblem : handleDeleteProblem}
-          onProblemReviewed={isPotdList ? handlePotdProblemReviewed : handleProblemReviewed}
-          onEditProblem={handleOpenForm}
-          isReviewList={isReviewList}
-        />
-      </TabsContent>
-      <TabsContent value="codeforces">
-        <ProblemList
-          problems={problemsToRender.filter(p => p.platform === 'codeforces')}
-          onUpdateProblem={isPotdList ? handleUpdatePotdProblem : handleUpdateProblem}
-          onDeleteProblem={isPotdList ? handleDeletePotdProblem : handleDeleteProblem}
-          onProblemReviewed={isPotdList ? handlePotdProblemReviewed : handleProblemReviewed}
-          onEditProblem={handleOpenForm}
-          isReviewList={isReviewList}
-        />
-      </TabsContent>
-      <TabsContent value="atcoder">
-        <ProblemList
-          problems={problemsToRender.filter(p => p.platform === 'atcoder')}
-          onUpdateProblem={isPotdList ? handleUpdatePotdProblem : handleUpdateProblem}
-          onDeleteProblem={isPotdList ? handleDeletePotdProblem : handleDeleteProblem}
-          onProblemReviewed={isPotdList ? handlePotdProblemReviewed : handleProblemReviewed}
-          onEditProblem={handleOpenForm}
-          isReviewList={isReviewList}
-        />
-      </TabsContent>
-    </Tabs>
+  const renderProblemList = (problemsToRender: Problem[], isPotdList: boolean = false, isReviewList: boolean = false, listType: 'user' | 'company' | 'all' = 'all') => (
+    <ProblemList
+      problems={problemsToRender}
+      onUpdateProblem={isPotdList ? handleUpdatePotdProblem : handleUpdateProblem}
+      onDeleteProblem={isPotdList ? handleDeletePotdProblem : handleDeleteProblem}
+      onEditProblem={handleOpenForm}
+      onProblemReviewed={isPotdList ? handlePotdProblemReviewed : handleProblemReviewed}
+      isReviewList={isReviewList}
+      listType={listType}
+    />
   );
 
 
@@ -350,7 +337,7 @@ function App() {
               </div>
               
               <div className="flex items-center space-x-4">
-                 <Settings onSettingsSave={handleSettingsSave}>
+                 <Settings onSettingsSave={handleSettingsSave} onClearAllData={handleClearAllData}>
                     <Button variant="ghost" size="icon">
                         <SettingsIcon className="h-6 w-6" />
                     </Button>
@@ -424,21 +411,25 @@ function App() {
             </div>
 
             <TabsContent value="dashboard">
-              <Dashboard
-                problems={activeProblems}
-                onUpdateProblem={handleUpdateProblem}
+              <Dashboard 
+                problems={problems}
+                onUpdateProblem={handleUpdateProblem} 
                 onAddPotd={handleAddPotdProblem}
                 onImportProblems={handleImportProblems}
+                onClearAllData={handleClearAllData}
               />
             </TabsContent>
             <TabsContent value="companies">
-              <CompanyView
-                problems={problems}
+              <CompanyView 
+                problems={problems} 
                 onUpdateProblem={handleUpdateProblem}
                 onDeleteProblem={handleDeleteProblem}
                 onEditProblem={handleOpenForm}
                 onProblemReviewed={handleProblemReviewed}
               />
+            </TabsContent>
+            <TabsContent value="settings">
+              <Settings onSave={handleSettingsSave} />
             </TabsContent>
             <TabsContent value="potd">
               {renderProblemList(potdProblems, true)}
@@ -452,21 +443,21 @@ function App() {
               />
             </TabsContent>
             <TabsContent value="problems">
-              <div className="flex justify-end pb-4">
-                <Button onClick={() => handleOpenForm()}>
-                  <div className="flex items-center">
-                    <Plus className="h-5 w-5 mr-2" />
-                    <span>Add Problem</span>
-                  </div>
-                </Button>
-              </div>
-              {renderProblemList(activeProblems)}
+                <div className="flex justify-end pb-4">
+                    <Button onClick={() => handleOpenForm()}>
+                        <div className="flex items-center">
+                            <Plus className="h-5 w-5 mr-2" />
+                            <span>Add Problem</span>
+                        </div>
+                    </Button>
+                </div>
+                {renderProblemList(activeProblems.filter(p => !p.isCompanyProblem))}
             </TabsContent>
             <TabsContent value="review">
               {renderProblemList([...reviewProblems, ...reviewPotdProblems], false, true)}
             </TabsContent>
             <TabsContent value="learned">
-                {renderProblemList(learnedProblems)}
+                {renderProblemList(learnedProblems.filter(p => !p.isCompanyProblem))}
             </TabsContent>
             <TabsContent value="analytics">
               <Analytics problems={problems} />

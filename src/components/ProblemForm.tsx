@@ -100,7 +100,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
       onUpdateProblem(problemToEdit.id, problemData);
       // toast.success('Problem updated successfully!'); // Removed toast import
     } else {
-      onAddProblem(problemData);
+      onAddProblem({ ...problemData, isCompanyProblem: false });
       // toast.success('Problem added successfully!'); // Removed toast import
     }
     

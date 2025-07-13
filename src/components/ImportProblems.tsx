@@ -98,6 +98,7 @@ const ImportProblems = ({ open, onOpenChange, onImport }: ImportProblemsProps) =
               url: row.url,
               difficulty: row.difficulty,
               companies: [selectedCompany],
+              isCompanyProblem: true,
             }));
             allProblems.push(...importedProblems);
           }

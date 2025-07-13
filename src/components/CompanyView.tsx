@@ -42,6 +42,7 @@ const CompanyView = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
           onDeleteProblem={onDeleteProblem}
           onEditProblem={onEditProblem}
           onProblemReviewed={onProblemReviewed}
+          listType='company'
         />
       </div>
     );

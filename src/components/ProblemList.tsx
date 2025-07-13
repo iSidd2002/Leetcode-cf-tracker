@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { startOfDay } from 'date-fns';
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -41,9 +41,10 @@ interface ProblemListProps {
   onEditProblem: (problem: Problem) => void;
   onProblemReviewed: (id: string, currentInterval: number) => void;
   isReviewList?: boolean;
+  listType?: 'user' | 'company' | 'all';
 }
 
-const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem, onProblemReviewed, isReviewList = false }: ProblemListProps) => {
+const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem, onProblemReviewed, isReviewList = false, listType = 'all' }: ProblemListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
@@ -60,7 +61,18 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
     });
   };
 
-  const filteredProblems = problems.filter((problem) => {
+  const baseProblems = useMemo(() => {
+    switch (listType) {
+      case 'user':
+        return problems.filter(p => !p.isCompanyProblem);
+      case 'company':
+        return problems.filter(p => p.isCompanyProblem);
+      default:
+        return problems;
+    }
+  }, [problems, listType]);
+
+  const filteredProblems = baseProblems.filter((problem) => {
     const searchTermLower = searchTerm.toLowerCase();
     const matchesTitle = problem.title.toLowerCase().includes(searchTermLower);
     const matchesTopics = problem.topics && problem.topics.some(topic => topic.toLowerCase().includes(searchTermLower));
@@ -92,10 +104,10 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
   return (
     <Card>
         <CardHeader>
-            <CardTitle>Problems</CardTitle>
+            <CardTitle>{isReviewList ? 'Review List' : 'Problems'}</CardTitle>
             <div className="flex justify-between items-center pt-4">
                 <p className="text-sm text-muted-foreground">
-                    {filteredProblems.length} of {problems.length} problems
+                    {filteredProblems.length} of {baseProblems.length} problems
                 </p>
                 <div className="w-1/3">
                     <Input
@@ -115,6 +127,7 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
                 <TableHead>Problem</TableHead>
                 <TableHead>Platform</TableHead>
                 <TableHead>Difficulty / Rating</TableHead>
+                <TableHead>Date Added</TableHead>
                 <TableHead>Next Review</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -163,6 +176,9 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
                         <Badge variant={getDifficultyBadgeVariant(problem.difficulty, problem.platform)}>
                           {problem.difficulty}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {problem.createdAt ? new Date(problem.createdAt).toLocaleDateString() : 'N/A'}
                       </TableCell>
                       <TableCell>
                         {isDueForReview(problem) ? (
@@ -223,7 +239,7 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
                     </TableRow>
                     {expandedRows.has(problem.id) && (
                       <TableRow>
-                        <TableCell colSpan={5}>
+                        <TableCell colSpan={6}>
                           <div className="p-4 bg-muted/50 rounded-md">
                             <h4 className="font-semibold mb-2">Notes</h4>
                             <div className="prose dark:prose-invert max-w-none">
@@ -239,7 +255,7 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>

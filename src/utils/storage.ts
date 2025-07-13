@@ -90,6 +90,16 @@ class StorageService {
     return true;
   }
 
+  static clearAllData(): void {
+    try {
+      localStorage.removeItem(PROBLEMS_KEY);
+      localStorage.removeItem(POTD_PROBLEMS_KEY);
+      localStorage.removeItem(CONTESTS_KEY);
+    } catch (error) {
+      console.error('Error clearing data from localStorage:', error);
+    }
+  }
+
   private static generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
