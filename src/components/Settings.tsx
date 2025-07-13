@@ -14,16 +14,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getReviewIntervals, saveReviewIntervals } from '@/utils/settingsStorage';
 import { toast } from 'sonner';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Settings as SettingsIcon } from 'lucide-react';
 import StorageService from '@/utils/storage';
 import { Switch } from '@/components/ui/switch';
 
 interface SettingsProps {
-  children: React.ReactNode;
-  onSettingsSave: (intervals: number[]) => void;
+  onSave?: (intervals: number[]) => void;
+  onClearAllData?: () => void;
 }
 
-export function Settings({ children, onSettingsSave }: SettingsProps) {
+export function Settings({ onSave, onClearAllData }: SettingsProps) {
   const [open, setOpen] = useState(false);
   const [intervals, setIntervals] = useState<number[]>([]);
   // Add state for notifications toggle
@@ -57,7 +57,9 @@ export function Settings({ children, onSettingsSave }: SettingsProps) {
       return;
     }
     saveReviewIntervals(intervals);
-    onSettingsSave(intervals);
+    if (onSave) {
+      onSave(intervals);
+    }
     toast.success('Settings saved!');
     setOpen(false);
     localStorage.setItem('enableNotifications', enableNotifications.toString());
@@ -93,7 +95,9 @@ export function Settings({ children, onSettingsSave }: SettingsProps) {
           StorageService.savePotdProblems(data.potdProblems || []);
           StorageService.saveContests(data.contests || []);
           saveReviewIntervals(data.reviewIntervals || []);
-          onSettingsSave(data.reviewIntervals || []);
+          if (onSave) {
+            onSave(data.reviewIntervals || []);
+          }
           toast.success('Data imported successfully! Please refresh the page.');
         } catch (error) {
           toast.error('Invalid file format');
@@ -103,9 +107,20 @@ export function Settings({ children, onSettingsSave }: SettingsProps) {
     }
   };
 
+  const handleClearData = () => {
+    if (onClearAllData) {
+      onClearAllData();
+      setOpen(false);
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <SettingsIcon className="h-6 w-6" />
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
@@ -154,8 +169,13 @@ export function Settings({ children, onSettingsSave }: SettingsProps) {
               <Button onClick={handleExport}>Export Data</Button>
               <Input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-file" />
               <label htmlFor="import-file" className="cursor-pointer">
-                <Button>Import Data</Button>
+                <Button asChild><span>Import Data</span></Button>
               </label>
+            </div>
+             <div className="!mt-6 space-y-2">
+              <Label>Danger Zone</Label>
+              <Button variant="destructive" onClick={handleClearData}>Clear All Data</Button>
+               <p className="text-xs text-muted-foreground">This will permanently delete all your problems and contests.</p>
             </div>
           </div>
         </div>

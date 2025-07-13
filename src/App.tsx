@@ -5,7 +5,7 @@ import Dashboard from './components/Dashboard';
 import ProblemForm from './components/ProblemForm';
 import ProblemList from './components/ProblemList';
 import Analytics from './components/Analytics';
-import { Home, Plus, List, BarChart3, Moon, Sun, Star, Settings as SettingsIcon, Archive as LearnedIcon, History, Trophy, Building2 } from 'lucide-react';
+import { Home, Plus, List, BarChart3, Moon, Sun, Star, Archive as LearnedIcon, History, Trophy, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme, ThemeProvider } from '@/components/theme-provider';
@@ -27,7 +27,6 @@ function App() {
   const { theme, setTheme } = useTheme();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [problemToEdit, setProblemToEdit] = useState<Problem | null>(null);
-  const [activePlatform, setActivePlatform] = useState('leetcode');
 
 
   useEffect(() => {
@@ -337,11 +336,6 @@ function App() {
               </div>
               
               <div className="flex items-center space-x-4">
-                 <Settings onSettingsSave={handleSettingsSave} onClearAllData={handleClearAllData}>
-                    <Button variant="ghost" size="icon">
-                        <SettingsIcon className="h-6 w-6" />
-                    </Button>
-                </Settings>
                 <span className="text-sm text-muted-foreground">
                   {problems.length} problem{problems.length !== 1 ? 's' : ''} tracked
                 </span>
@@ -416,7 +410,6 @@ function App() {
                 onUpdateProblem={handleUpdateProblem} 
                 onAddPotd={handleAddPotdProblem}
                 onImportProblems={handleImportProblems}
-                onClearAllData={handleClearAllData}
               />
             </TabsContent>
             <TabsContent value="companies">
@@ -429,7 +422,7 @@ function App() {
               />
             </TabsContent>
             <TabsContent value="settings">
-              <Settings onSave={handleSettingsSave} />
+              <Settings onSave={handleSettingsSave} onClearAllData={handleClearAllData} />
             </TabsContent>
             <TabsContent value="potd">
               {renderProblemList(potdProblems, true)}
