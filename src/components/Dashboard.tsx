@@ -2,20 +2,24 @@ import type { Problem } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookCopy, CalendarDays, Star, Trophy, Clock } from 'lucide-react';
+import { BookCopy, CalendarDays, Star, Trophy, Clock, Download } from 'lucide-react';
 import { isToday, isPast } from 'date-fns';
 import ProblemOfTheDay from './ProblemOfTheDay';
 import type { ActiveDailyCodingChallengeQuestion } from '../types';
 import { format, isSameDay, subDays, eachDayOfInterval, differenceInDays, eachWeekOfInterval } from 'date-fns';
+import ImportProblems from './ImportProblems';
+import { useState } from 'react';
 
 
 interface DashboardProps {
   problems: Problem[];
   onUpdateProblem: (id: string, updates: Partial<Problem>) => void;
   onAddPotd: (potd: ActiveDailyCodingChallengeQuestion) => void;
+  onImportProblems: (problems: Partial<Problem>[]) => void;
 }
 
-const Dashboard = ({ problems, onUpdateProblem, onAddPotd }: DashboardProps) => {
+const Dashboard = ({ problems, onUpdateProblem, onAddPotd, onImportProblems }: DashboardProps) => {
+  const [isImporting, setIsImporting] = useState(false);
   const totalProblems = problems.length;
   const thisWeek = problems.filter((p) => {
     const weekAgo = new Date();
@@ -153,7 +157,32 @@ const Dashboard = ({ problems, onUpdateProblem, onAddPotd }: DashboardProps) => 
 
   return (
     <div className="space-y-8">
-      <ProblemOfTheDay onAddPotd={onAddPotd} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <ProblemOfTheDay onAddPotd={onAddPotd} />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Import Problems
+            </CardTitle>
+            <Download className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground mb-4">
+              Bulk import problems from company lists.
+            </div>
+            <Button onClick={() => setIsImporting(true)}>
+              Import Now
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <ImportProblems 
+        open={isImporting} 
+        onOpenChange={setIsImporting} 
+        onImport={onImportProblems} 
+      />
+
       <Card>
         <CardHeader>
           <CardTitle>Solve Streaks</CardTitle>

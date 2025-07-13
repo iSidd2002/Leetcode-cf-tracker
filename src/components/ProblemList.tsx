@@ -64,7 +64,8 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
     const searchTermLower = searchTerm.toLowerCase();
     const matchesTitle = problem.title.toLowerCase().includes(searchTermLower);
     const matchesTopics = problem.topics && problem.topics.some(topic => topic.toLowerCase().includes(searchTermLower));
-    return matchesTitle || matchesTopics;
+    const matchesCompanies = problem.companies && problem.companies.some(company => company.toLowerCase().includes(searchTermLower));
+    return matchesTitle || matchesTopics || matchesCompanies;
   });
 
   const isDueForReview = (problem: Problem) => {
@@ -142,6 +143,13 @@ const ProblemList = ({ problems, onUpdateProblem, onDeleteProblem, onEditProblem
                           <div className="mt-2 flex flex-wrap gap-2">
                             {problem.topics.map(topic => (
                               <Badge key={topic} variant="secondary">{topic}</Badge>
+                            ))}
+                          </div>
+                        )}
+                        {problem.companies && problem.companies.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {problem.companies.map(company => (
+                              <Badge key={company} variant="default">{company}</Badge>
                             ))}
                           </div>
                         )}

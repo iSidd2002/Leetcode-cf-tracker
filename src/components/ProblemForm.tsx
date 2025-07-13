@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { MultiSelect, type Option } from '@/components/ui/multi-select';
 import { MarkdownEditor } from '@/components/ui/MarkdownEditor';
 import { leetcodeTopics, codeforcesTopics } from '@/lib/topics';
+import { companies } from '@/lib/companies';
 
 interface ProblemFormProps {
   open: boolean;
@@ -29,6 +30,7 @@ const INITIAL_FORM_STATE: FormData = {
   notes: '',
   isReview: false,
   topics: [],
+  companies: [],
   status: 'active',
   repetition: 0,
   interval: 0,
@@ -43,6 +45,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
     if (problemToEdit) {
       setFormData({
         ...problemToEdit,
+        companies: problemToEdit.companies || [],
         dateSolved: problemToEdit.dateSolved.split('T')[0],
       });
     } else {
@@ -54,6 +57,10 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
     const topics = formData.platform === 'leetcode' ? leetcodeTopics : codeforcesTopics;
     return topics.map(topic => ({ label: topic, value: topic }));
   }, [formData.platform]);
+
+  const companyOptions = useMemo<Option[]>(() => {
+    return companies.map(company => ({ label: company, value: company }));
+  }, []);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -70,6 +77,8 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
         setFormData(prev => ({ ...prev, platform: value as 'leetcode' | 'codeforces' | 'atcoder', difficulty: '', topics: [] }));
     } else if (name === 'topics') {
         setFormData(prev => ({ ...prev, topics: value as string[] }));
+    } else if (name === 'companies') {
+        setFormData(prev => ({ ...prev, companies: value as string[] }));
     } else {
         setFormData(prev => ({ ...prev, [name]: value as string }));
     }
@@ -199,6 +208,16 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
                 onValueChange={(value) => handleSelectChange('topics', value)}
                 value={formData.topics}
                 placeholder="Select topics"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="companies">Company Tags</Label>
+            <MultiSelect
+                options={companyOptions}
+                onValueChange={(value) => handleSelectChange('companies', value)}
+                value={formData.companies}
+                placeholder="Select companies"
             />
           </div>
 

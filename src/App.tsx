@@ -5,7 +5,7 @@ import Dashboard from './components/Dashboard';
 import ProblemForm from './components/ProblemForm';
 import ProblemList from './components/ProblemList';
 import Analytics from './components/Analytics';
-import { Home, Plus, List, BarChart3, Moon, Sun, Star, Settings as SettingsIcon, Archive as LearnedIcon, History, Trophy } from 'lucide-react';
+import { Home, Plus, List, BarChart3, Moon, Sun, Star, Settings as SettingsIcon, Archive as LearnedIcon, History, Trophy, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme, ThemeProvider } from '@/components/theme-provider';
@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import type { Contest } from './types';
 import ContestTracker from './components/ContestTracker';
 import { Badge } from '@/components/ui/badge';
+import CompanyView from './components/CompanyView';
 
 
 function App() {
@@ -30,7 +31,13 @@ function App() {
 
 
   useEffect(() => {
-    setProblems(StorageService.getProblems());
+    // Clear existing problems on load as requested for the restructuring.
+    if (StorageService.getProblems().length > 0) {
+      StorageService.saveProblems([]);
+      toast.info("All problems have been cleared to set up the new company view.");
+    }
+    setProblems([]);
+
     setPotdProblems(StorageService.getPotdProblems());
     setContests(StorageService.getContests());
     setIsLoaded(true);
@@ -121,6 +128,7 @@ function App() {
       nextReviewDate: null,
       topics: potd.question.topicTags.map(t => t.name),
       status: 'active',
+      companies: [],
     };
     setPotdProblems(prev => [...prev, newProblem]);
     toast.success('Problem of the day added to your POTD list!');
@@ -133,6 +141,27 @@ function App() {
       createdAt: new Date().toISOString(),
     }
     setProblems([...problems, newProblem])
+  };
+
+  const handleImportProblems = (importedProblems: Partial<Problem>[]) => {
+    const existingUrls = new Set(problems.map(p => p.url));
+    
+    const newProblems: Problem[] = importedProblems
+      .filter(p => p.url && !existingUrls.has(p.url))
+      .map(p => ({
+        ...INITIAL_PROBLEM_STATE, // A default state to ensure all fields are present
+        ...p,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        platform: 'leetcode', // Ensure platform is set
+      } as Problem));
+
+    if (newProblems.length > 0) {
+      setProblems(prev => [...prev, ...newProblems]);
+      toast.success(`${newProblems.length} new problem(s) imported successfully!`);
+    } else {
+      toast.info('No new problems to import. All problems already exist.');
+    }
   };
 
   const handleUpdateProblem = (id: string, updates: Partial<Problem>) => {
@@ -249,6 +278,20 @@ function App() {
   const reviewProblems = activeProblems.filter(p => p.isReview && p.nextReviewDate);
   const learnedProblems = problems.filter(p => p.status === 'learned');
 
+  // Define a constant for initial problem state to use in import
+  const INITIAL_PROBLEM_STATE: Omit<Problem, 'id' | 'createdAt' | 'problemId' | 'title' | 'difficulty' | 'url'> = {
+    platform: 'leetcode',
+    dateSolved: new Date().toISOString(),
+    notes: '',
+    isReview: false,
+    topics: [],
+    companies: [],
+    status: 'active',
+    repetition: 0,
+    interval: 0,
+    nextReviewDate: null,
+  };
+
   const activePotdProblems = potdProblems.filter(p => p.status === 'active');
   const reviewPotdProblems = activePotdProblems.filter(p => p.isReview && p.nextReviewDate);
 
@@ -350,9 +393,13 @@ function App() {
                   <Home className="h-5 w-5 sm:mr-2" />
                   <span className="hidden sm:inline">Dashboard</span>
                 </TabsTrigger>
-                <TabsTrigger value="potd-history">
+                <TabsTrigger value="companies">
+                  <Building2 className="h-5 w-5 sm:mr-2" />
+                  <span className="hidden sm:inline">Companies</span>
+                </TabsTrigger>
+                <TabsTrigger value="potd">
                   <History className="h-5 w-5 sm:mr-2" />
-                  <span className="hidden sm:inline">POTD History</span>
+                  <span className="hidden sm:inline">POTD</span>
                 </TabsTrigger>
                 <TabsTrigger value="contests">
                   <Trophy className="h-5 w-5 sm:mr-2" />
@@ -387,9 +434,19 @@ function App() {
                 problems={activeProblems}
                 onUpdateProblem={handleUpdateProblem}
                 onAddPotd={handleAddPotdProblem}
+                onImportProblems={handleImportProblems}
               />
             </TabsContent>
-            <TabsContent value="potd-history">
+            <TabsContent value="companies">
+              <CompanyView
+                problems={problems}
+                onUpdateProblem={handleUpdateProblem}
+                onDeleteProblem={handleDeleteProblem}
+                onEditProblem={handleOpenForm}
+                onProblemReviewed={handleProblemReviewed}
+              />
+            </TabsContent>
+            <TabsContent value="potd">
               {renderProblemList(potdProblems, true)}
             </TabsContent>
             <TabsContent value="contests">

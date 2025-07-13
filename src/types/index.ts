@@ -14,6 +14,7 @@ export interface Problem {
   nextReviewDate: string | null;
   topics: string[];
   status: 'active' | 'learned';
+  companies: string[];
 }
 
 export interface PlatformStats {
