@@ -79,6 +79,7 @@ const ImportProblems = ({ open, onOpenChange, onImport }: ImportProblemsProps) =
       "1. Thirty Days.csv",
     ];
     
+    let allProblems: Partial<Problem>[] = [];
     let problemsFound = false;
 
     for (const fileName of fileNamesToTry) {
@@ -89,38 +90,31 @@ const ImportProblems = ({ open, onOpenChange, onImport }: ImportProblemsProps) =
         if (response.ok) {
           const csvText = await response.text();
           const parsedData = parseCSV(csvText);
-
-          if (parsedData.length === 0) {
-            toast.info("Could not parse any problems from the file. It might be empty or in an unexpected format.");
-            setIsImporting(false);
-            return;
-          }
           
-          const importedProblems: Partial<Problem>[] = parsedData.map(row => ({
-            title: row.title,
-            url: row.url,
-            difficulty: row.difficulty,
-            companies: [selectedCompany],
-          }));
-
-          onImport(importedProblems);
-          onOpenChange(false);
-          problemsFound = true;
-          break; // Exit loop on success
+          if (parsedData.length > 0) {
+            problemsFound = true;
+            const importedProblems: Partial<Problem>[] = parsedData.map(row => ({
+              title: row.title,
+              url: row.url,
+              difficulty: row.difficulty,
+              companies: [selectedCompany],
+            }));
+            allProblems.push(...importedProblems);
+          }
         } else if (response.status !== 404) {
-          // If it's not a 404, it's a server error, so we should stop.
           throw new Error(`Failed to fetch problems. Status: ${response.status}`);
         }
-        // If it is a 404, we'll just continue to the next filename.
       } catch (error: any) {
-        // This will catch network errors or the thrown error from above.
         toast.error(error.message || 'An unknown error occurred during import.');
         setIsImporting(false);
-        return; // Stop the process on error
+        return;
       }
     }
     
-    if (!problemsFound) {
+    if (problemsFound) {
+      onImport(allProblems);
+      onOpenChange(false);
+    } else {
       toast.error(`Could not find any problem list for ${selectedCompany}.`);
     }
 
