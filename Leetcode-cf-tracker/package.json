@@ -19,7 +19,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:server": "cd server && npm test",
-    "test:all": "npm run test:server && npm run test"
+    "test:all": "npm run test:server && npm run test",
+    "render-build": "npm install && npm run build",
+    "build:prod": "NODE_ENV=production npm run build"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.0",

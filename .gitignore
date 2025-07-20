@@ -14,15 +14,25 @@ build/
 */build/
 dist-ssr
 
-# Environment variables
+# Environment variables (exclude examples and production templates)
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
 .env.production.local
 */.env
 */.env.local
+*/.env.development
+*/.env.test
 *.local
+
+# Keep these template files
+!.env.example
+!.env.production
+!*/.env.example
+!*/.env.production
 
 # IDE and editor files
 .vscode/*

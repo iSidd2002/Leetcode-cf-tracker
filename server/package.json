@@ -11,7 +11,10 @@
     "test:watch": "NODE_ENV=test jest --watch",
     "test:coverage": "NODE_ENV=test jest --coverage",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "render-build": "npm install && npm run build",
+    "render-start": "npm start",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@types/node-fetch": "^2.6.12",
