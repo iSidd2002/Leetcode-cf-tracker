@@ -24,7 +24,7 @@ interface ContestListProps {
 }
 
 export default function ContestList({ contests, onEditContest, onDeleteContest }: ContestListProps) {
-  const getPlatformBadgeVariant = (platform: 'leetcode' | 'codeforces' | 'atcoder' | 'other') => {
+  const getPlatformBadgeVariant = (platform: 'leetcode' | 'codeforces' | 'atcoder' | 'codechef' | 'other') => {
     switch (platform) {
       case 'leetcode':
         return 'warning';
@@ -32,6 +32,8 @@ export default function ContestList({ contests, onEditContest, onDeleteContest }
         return 'destructive';
       case 'atcoder':
         return 'default';
+      case 'codechef':
+        return 'outline';
       default:
         return 'secondary';
     }

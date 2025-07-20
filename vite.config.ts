@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // External API proxies (for development) - must come before general /api rule
       '/api/potd': {
         target: 'https://leetcode.com',
         changeOrigin: true,
@@ -26,6 +27,11 @@ export default defineConfig({
         target: 'https://leetcode.com/graphql',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/leetcode/, ''),
+      },
+      // Backend API proxy - must come after specific external API rules
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
       },
     },
   },

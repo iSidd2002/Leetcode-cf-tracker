@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ExternalLink } from "lucide-react";
 
-const LEETCODE_API_ENDPOINT = '/api/potd';
+// Use environment variable or fallback to localhost backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const LEETCODE_API_ENDPOINT = `${API_BASE_URL}/potd`;
 const DAILY_PROBLEM_QUERY = `
   query questionOfToday {
     activeDailyCodingChallengeQuestion {
@@ -46,7 +48,6 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
     useState<ActiveDailyCodingChallengeQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isProduction, setIsProduction] = useState(false);
 
   useEffect(() => {
     const fetchDailyProblem = async () => {
@@ -60,14 +61,7 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
         });
 
         if (!response.ok) {
-          // Check if this is a 404 error (production environment)
-          if (response.status === 404) {
-            setIsProduction(true);
-            setError("API not available in production");
-          } else {
-            throw new Error("Failed to fetch daily problem");
-          }
-          return;
+          throw new Error(`Failed to fetch daily problem: ${response.status}`);
         }
 
         const result: LeetCodeDailyProblemResponse = await response.json();
@@ -77,14 +71,9 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
           throw new Error("No daily problem found");
         }
       } catch (err) {
+        console.error('Failed to fetch Problem of the Day:', err);
         if (err instanceof Error) {
-          // Check if it's a network error (likely production)
-          if (err.message.includes('fetch') || err.name === 'TypeError') {
-            setIsProduction(true);
-            setError("API not available in production");
-          } else {
-            setError(err.message);
-          }
+          setError(err.message);
         } else {
           setError("An unknown error occurred");
         }
@@ -109,8 +98,8 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
     );
   }
 
-  // Production fallback UI
-  if (isProduction || error) {
+  // Error fallback UI
+  if (error && !problem) {
     return (
       <Card>
         <CardHeader>
@@ -120,7 +109,10 @@ const ProblemOfTheDay = ({ onAddPotd }: ProblemOfTheDayProps) => {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <p className="text-muted-foreground mb-4">
-                Visit LeetCode to see today's problem and add it manually to your tracker.
+                Unable to load today's problem. Please try again later.
+              </p>
+              <p className="text-sm text-red-600 mb-4">
+                Error: {error}
               </p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button asChild>

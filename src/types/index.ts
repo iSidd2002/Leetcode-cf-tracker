@@ -84,7 +84,7 @@ export interface LeetCodeDailyProblemResponse {
 export interface Contest {
   id: string;
   name: string;
-  platform: 'leetcode' | 'codeforces' | 'atcoder' | 'other';
+  platform: 'leetcode' | 'codeforces' | 'atcoder' | 'codechef' | 'other';
   startTime: string;
   duration: number; // in minutes
   url: string;
@@ -92,4 +92,38 @@ export interface Contest {
   problemsSolved?: number;
   totalProblems?: number;
   status: 'scheduled' | 'live' | 'completed';
+  type?: string; // Optional type field for contest categorization
+}
+
+// API Types
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  settings: UserSettings;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserSettings {
+  reviewIntervals: number[];
+  enableNotifications: boolean;
+  theme: 'light' | 'dark' | 'system';
+  timezone: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+  };
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }

@@ -119,9 +119,9 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {/* Form fields remain the same */}
           <div className="space-y-2">
-            <Label>Platform *</Label>
+            <Label htmlFor="platform">Platform *</Label>
             <Select name="platform" onValueChange={(value: string) => handleSelectChange('platform', value)} value={formData.platform}>
-              <SelectTrigger>
+              <SelectTrigger id="platform" data-testid="platform-select">
                 <SelectValue placeholder="Select platform" />
               </SelectTrigger>
               <SelectContent>
@@ -140,6 +140,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
               value={formData.title}
               onChange={handleInputChange}
               placeholder="e.g., Two Sum"
+              data-testid="title-input"
             />
           </div>
 
@@ -147,7 +148,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
             <Label htmlFor="difficulty">{formData.platform === 'leetcode' ? 'Difficulty' : 'Rating'} *</Label>
             {formData.platform === 'leetcode' ? (
               <Select name="difficulty" onValueChange={(value: string) => handleSelectChange('difficulty', value)} value={formData.difficulty}>
-                <SelectTrigger>
+                <SelectTrigger id="difficulty" data-testid="difficulty-select">
                   <SelectValue placeholder="Select difficulty" />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,6 +159,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
               </Select>
             ) : (
               <Input
+                id="difficulty"
                 type="number"
                 name="difficulty"
                 value={formData.difficulty}
@@ -166,6 +168,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
                 min={800}
                 max={3500}
                 step={100}
+                data-testid="difficulty-input"
               />
             )}
           </div>
@@ -178,6 +181,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
               value={formData.url}
               onChange={handleInputChange}
               placeholder="https://leetcode.com/problems/two-sum/"
+              data-testid="url-input"
             />
           </div>
 
@@ -190,6 +194,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
                 value={formData.dateSolved}
                 onChange={handleInputChange}
                 max={new Date().toISOString().split('T')[0]}
+                data-testid="date-input"
             />
           </div>
 
@@ -198,6 +203,7 @@ const ProblemForm = ({ open, onOpenChange, onAddProblem, onUpdateProblem, proble
             <MarkdownEditor
               value={formData.notes}
               onChange={(value) => setFormData({ ...formData, notes: value })}
+              data-testid="notes-editor"
             />
           </div>
           
