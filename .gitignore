@@ -12,6 +12,7 @@ dist/
 build/
 */dist/
 */build/
+dist-ssr
 
 # Environment variables
 .env
@@ -21,9 +22,11 @@ build/
 .env.production.local
 */.env
 */.env.local
+*.local
 
 # IDE and editor files
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
@@ -98,9 +101,6 @@ tmp/
 temp/
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
 *.suo
 *.ntvs*
 *.njsproj
@@ -114,5 +114,6 @@ temp/
 coverage/
 .nyc_output/
 
-# Render specific
+# Deployment specific
 .render/
+.vercel
